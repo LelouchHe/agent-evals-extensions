@@ -6,6 +6,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { checker } from "../checkers/response/index.js";
 
 const exec = promisify(execFile);
 const cli = process.env.AGENT_EVALS_CLI ?? fileURLToPath(new URL("../../agent-evals/dist/cli.js", import.meta.url));
@@ -151,6 +152,27 @@ test("no assistant text is an error, not a vacuous pass", async () => {
     assert.equal(stderr.trim(), "", "an unevaluable check is reported in the record, not on stderr");
   } finally {
     await rm(dir, { recursive: true, force: true });
+  }
+});
+
+/**
+ * Python's text model is the authority: `str.splitlines()` ends a line at a bare CR, VT, FF,
+ * `\u001c`-`\u001e`, NEL, LS and PS, while `str.strip()` keeps a byte-order mark and removes
+ * NEL. Every expected verdict below was read from `checks.py` run under `python3 -B`, so a JS
+ * string/line primitive leaking into a rule changes the verdict and fails here.
+ */
+test("line and whitespace semantics match the Python the rules were ported from", async () => {
+  const cases = [
+    ["display-block-on-own-lines", "$$\ry=x^2\r$$", "pass"],
+    ["mid-not-pipe-in-table", "prose\r| $P(A \\mid B)$ |", "pass"],
+    ["mid-not-pipe-in-table", "| $x$ |\rprose $P(A|B)$", "pass"],
+    ["display-block-on-own-lines", "prose\n\uFEFF\n$$\nx\n$$", "fail"],
+    ["response-not-wholly-fenced", "\uFEFF```markdown\nx\n```", "pass"],
+  ];
+  for (const [rule, text, expected] of cases) {
+    const { data } = await checker.params.safeParseAsync({ check: rule });
+    const [result] = await checker.create(data).check({ trace: [{ type: "message", text }] });
+    assert.equal(result.status, expected, `${rule} on ${JSON.stringify(text)}: ${result.reason}`);
   }
 });
 

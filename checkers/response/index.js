@@ -56,11 +56,11 @@ const RULES = {
   "display-block-on-own-lines": {
     subject: "Places opening and closing $$ on separate lines with blank lines around the display block.",
     verify(text) {
-      const lines = text.split(/\r?\n/);
-      const markers = lines.flatMap((line, index) => (/^(\$\$)\s*$/.test(line.trim()) ? [index] : []));
+      const lines = splitLines(text);
+      const markers = lines.flatMap((line, index) => (strip(line) === "$$" ? [index] : []));
       if (markers.length === 0) {
         const inlineBlock = /^\s*\$\$.*\$\$\s*$/m.exec(text);
-        if (inlineBlock !== null) return fail(`the display block is inline: ${excerpt(inlineBlock[0].trim())}`);
+        if (inlineBlock !== null) return fail(`the display block is inline: ${excerpt(strip(inlineBlock[0]))}`);
         return fail("no `$$` block in the response");
       }
       if (markers.length % 2 === 1) return fail(`${markers.length} opening/closing \`$$\` line(s): the block is not closed`);
@@ -68,10 +68,10 @@ const RULES = {
       for (let index = 0; index < markers.length; index += 2) {
         const opening = markers[index];
         const closing = markers[index + 1];
-        if (opening > 0 && lines[opening - 1].trim() !== "") {
+        if (opening > 0 && strip(lines[opening - 1]) !== "") {
           problems.push(`line ${opening + 1}: no blank line before the block`);
         }
-        if (closing + 1 < lines.length && lines[closing + 1].trim() !== "") {
+        if (closing + 1 < lines.length && strip(lines[closing + 1]) !== "") {
           problems.push(`line ${closing + 2}: no blank line after the block`);
         }
       }
@@ -83,9 +83,8 @@ const RULES = {
   "mid-not-pipe-in-table": {
     subject: "Uses \\mid rather than a raw | for conditional probability inside a Markdown table cell.",
     verify(text) {
-      const tableMath = text
-        .split(/\r?\n/)
-        .map((line) => line.trim())
+      const tableMath = splitLines(text)
+        .map(strip)
         .filter((line) => line.startsWith("|"))
         .flatMap((line) => inlineSpans(line).map((span) => span[1]));
       if (tableMath.length === 0) return fail("no math inside a table row, so the rule was never exercised");
@@ -139,7 +138,7 @@ const RULES = {
   "response-not-wholly-fenced": {
     subject: "Does not wrap the entire response in a code fence.",
     verify(text) {
-      const stripped = text.trim();
+      const stripped = strip(text);
       const fences = allMatches(/```/g, stripped).length;
       if (stripped.startsWith("```") && stripped.endsWith("```") && fences === 2) {
         return fail("the entire response is one code fence");
@@ -151,6 +150,31 @@ const RULES = {
 
 /** CJK punctuation, unified ideographs and fullwidth forms: the neighbours the spacing rule is about. */
 const CJK = /[\u3000-\u303f\u4e00-\u9fff\uff00-\uffef]/;
+
+/**
+ * Python's `str.splitlines()` boundaries, which `String.prototype.split(/\r?\n/)` is not: a bare
+ * CR, VT, FF, `\u001c`-`\u001e`, NEL, LS and PS all end a line there. A trailing boundary does not
+ * add an empty final element, as in Python.
+ */
+const LINE_BOUNDARY = /\r\n|[\n\r\v\f\u001c\u001d\u001e\u0085\u2028\u2029]/;
+
+function splitLines(text) {
+  if (text === "") return [];
+  const lines = text.split(LINE_BOUNDARY);
+  if (lines.at(-1) === "") lines.pop();
+  return lines;
+}
+
+/**
+ * Python's `str.strip()` whitespace, which `String.prototype.trim()` is not: it keeps a byte-order
+ * mark (`\uFEFF`) and removes `\u001c`-`\u001f` and NEL.
+ */
+const PY_SPACE = "[\t\n\v\f\r\u001c-\u001f \u0085\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]";
+const PY_STRIP = new RegExp(`^${PY_SPACE}+|${PY_SPACE}+$`, "g");
+
+function strip(value) {
+  return value.replace(PY_STRIP, "");
+}
 
 function inlineSpans(text) {
   return allMatches(/(?<!\$)\$(?!\$)([^$\n]+?)\$(?!\$)/g, text);
@@ -210,7 +234,7 @@ export const checker = {
           return [{ checker: "response", subject: rule.subject, status: "error", reason: "this runner records no trace" }];
         }
         const text = responseText(context.trace);
-        if (text.trim() === "") {
+        if (strip(text) === "") {
           return [
             { checker: "response", subject: rule.subject, status: "error", reason: "the run produced no assistant text" },
           ];

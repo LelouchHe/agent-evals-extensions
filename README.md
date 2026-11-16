@@ -51,7 +51,11 @@ checks:
 | `response-not-wholly-fenced` | Does not wrap the entire response in a code fence. |
 
 The rules are ports of `global/skills/markdown-writing/evals/checks.py`, so a package's recorded
-numbers stay comparable across the two instruments.
+numbers stay comparable across the two instruments. That includes the text model, not just the
+patterns: lines end where Python's `str.splitlines()` ends them (a bare CR, VT, FF, `\u001c`-`\u001e`,
+NEL, LS, PS), and a line is trimmed with Python's `str.strip()` whitespace, which keeps a
+byte-order mark and removes NEL. `String.prototype.split(/\r?\n/)` and `trim()` would judge the same
+response differently, so a test compares each such case against a verdict read from `checks.py`.
 
 A rule that measures something fails when its premise is absent: no inline math means the spacing
 rule fails rather than passing vacuously. A restraint ("does not…") passes when there is nothing
