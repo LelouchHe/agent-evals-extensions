@@ -1,0 +1,8 @@
+{
+  "name": "agent-evals-extensions",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Checker and runner extensions for agent-evals, outside the toolkit repository.",
+  "license": "MIT"
+}
