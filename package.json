@@ -1,8 +1,23 @@
 {
   "name": "agent-evals-extensions",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "description": "Checker and runner extensions for agent-evals, outside the toolkit repository.",
-  "license": "MIT"
+  "license": "MIT",
+  "author": "Lelouch He",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LelouchHe/agent-evals-extensions.git"
+  },
+  "homepage": "https://github.com/LelouchHe/agent-evals-extensions#readme",
+  "bugs": {
+    "url": "https://github.com/LelouchHe/agent-evals-extensions/issues"
+  },
+  "keywords": [
+    "agent-evals",
+    "checker",
+    "extension",
+    "evaluation"
+  ]
 }

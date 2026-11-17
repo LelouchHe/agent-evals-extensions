@@ -1,20 +1,32 @@
 # Agent Evals Extensions
 
-Checkers and runners for [agent-evals](../agent-evals) that live outside the toolkit repository,
-so a skill's eval package can keep its cases next to the skill while the instrument that judges
-them stays shared.
+Checkers and runners for [agent-evals](https://github.com/LelouchHe/agent-evals) that live outside the
+toolkit repository, so a skill's eval package can keep its cases next to the skill while the
+instrument that judges them stays shared.
+
+Clone both side by side — `agent-evals/` and `agent-evals-extensions/` — build the toolkit, then
+point `--extension-dir` at the root you need:
+
+```bash
+git clone https://github.com/LelouchHe/agent-evals
+git clone https://github.com/LelouchHe/agent-evals-extensions
+cd agent-evals && npm ci && npm run build
+```
+
+The skill packages these checkers were written for are private and are not part of either
+repository; the checker and its tests are self-contained.
 
 An agent-evals extension root is a directory whose every subdirectory is one implementation with
 an `index.ts`, `index.js` or `index.mjs` entry point. Two roots are here:
 
-| Root | `$type` | Purpose |
-| --- | --- | --- |
-| `checkers/` | `response` | Deterministic assertions over the text the agent produced |
-| `runners/` | `scripted` | Serves a canned trace, so a checker is verified without a model call |
+| Root        | `$type`    | Purpose                                                              |
+| ----------- | ---------- | -------------------------------------------------------------------- |
+| `checkers/` | `response` | Deterministic assertions over the text the agent produced            |
+| `runners/`  | `scripted` | Serves a canned trace, so a checker is verified without a model call |
 
 ```bash
-cd ../agent-evals && npm run build
-agent-evals run <case.yml> \
+cd agent-evals && npm run build
+node dist/cli.js run <case.yml> \
   --extension-dir ../agent-evals-extensions/checkers \
   --extension-dir ../agent-evals-extensions/runners
 ```
@@ -39,19 +51,19 @@ checks:
     check: display-block-on-own-lines
 ```
 
-| `check` | Expectation it decides |
-| --- | --- |
-| `inline-math-uses-dollar-syntax` | Uses standard `$...$` syntax for inline math. |
-| `ascii-space-around-inline-math` | Places ASCII spaces outside the inline math delimiters where they meet Chinese text. |
-| `display-block-on-own-lines` | Places opening and closing `$$` on separate lines with blank lines around the display block. |
-| `mid-not-pipe-in-table` | Uses `\mid` rather than a raw `\|` for conditional probability inside a Markdown table cell. |
-| `no-math-in-code-or-links` | Does not place math inside code spans, fenced code, or link text. |
-| `no-math-at-all` | Does not invent inline or display math. |
-| `no-formatting-commentary` | Does not add commentary about LaTeX, SilverBullet, or formatting rules. |
-| `response-not-wholly-fenced` | Does not wrap the entire response in a code fence. |
+| `check`                          | Expectation it decides                                                                       |
+| -------------------------------- | -------------------------------------------------------------------------------------------- |
+| `inline-math-uses-dollar-syntax` | Uses standard `$...$` syntax for inline math.                                                |
+| `ascii-space-around-inline-math` | Places ASCII spaces outside the inline math delimiters where they meet Chinese text.         |
+| `display-block-on-own-lines`     | Places opening and closing `$$` on separate lines with blank lines around the display block. |
+| `mid-not-pipe-in-table`          | Uses `\mid` rather than a raw `\|` for conditional probability inside a Markdown table cell. |
+| `no-math-in-code-or-links`       | Does not place math inside code spans, fenced code, or link text.                            |
+| `no-math-at-all`                 | Does not invent inline or display math.                                                      |
+| `no-formatting-commentary`       | Does not add commentary about LaTeX, SilverBullet, or formatting rules.                      |
+| `response-not-wholly-fenced`     | Does not wrap the entire response in a code fence.                                           |
 
-The rules are ports of the `checks.py` that `markdown-writing` shipped while skill-evals measured
-it; that file has since been retired, and the tests still carry the verdicts read from it, so the
+The rules are ports of a suite of `checks.py` functions written for the package that first needed
+them; that file has since been retired, and the tests still carry the verdicts read from it, so the
 port stays verifiable against the instrument it came from. That includes the text model, not just the
 patterns: lines end where Python's `str.splitlines()` ends them (a bare CR, VT, FF, `\u001c`-`\u001e`,
 NEL, LS, PS), and a line is trimmed with Python's `str.strip()` whitespace, which keeps a
