@@ -3,7 +3,7 @@
  * engine without a model call, a harness or a sandbox.
  *
  * It is not part of the instrument: name this root only when testing
- * (`--extension-dir <repo>/scripted`), and never in a recorded sweep.
+ * (`--extension-dir <repo>/runners`), and never in a recorded sweep.
  */
 
 const params = {

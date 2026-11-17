@@ -3,12 +3,10 @@
  *
  * agent-evals' ACP trace records only `agent_message_chunk` updates, already joined across
  * consecutive chunks and never including a user or system message. The artifact this checker
- * reads is therefore the concatenation of every `message` entry, which is the same text
- * skill-evals derives as its `response` artifact, minus the bootstrap banner that a WebAgent
- * session carries and an ACP session does not.
+ * reads is therefore the concatenation of every `message` entry.
  *
- * The rules are ports of `global/skills/markdown-writing/evals/checks.py`, kept comparable
- * with that package's recorded numbers: one rule per expectation, one result per check.
+ * The rules are ports of a Python checker for a Markdown-with-math writing skill, kept
+ * comparable with its recorded numbers: one rule per expectation, one result per check.
  */
 
 /** @typedef {{ pass: boolean, reason: string }} Verdict */

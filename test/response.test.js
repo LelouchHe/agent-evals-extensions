@@ -16,8 +16,8 @@ const extensionArgs = ["checkers", "runners"].flatMap((name) => [
 ]);
 
 /**
- * One sample per side of each rule. These are the skill-evals expectations this checker
- * ports, so a rule that changes meaning should fail here rather than silently drift.
+ * One sample per side of each rule. These are the expectations this checker ports from its
+ * Python original, so a rule that changes meaning should fail here rather than silently drift.
  */
 const samples = [
   {
@@ -158,7 +158,7 @@ test("no assistant text is an error, not a vacuous pass", async () => {
 /**
  * Python's text model is the authority: `str.splitlines()` ends a line at a bare CR, VT, FF,
  * `\u001c`-`\u001e`, NEL, LS and PS, while `str.strip()` keeps a byte-order mark and removes
- * NEL. Every expected verdict below was read from the package's former `checks.py` run under
+ * NEL. Every expected verdict below was read from the original Python checker run under
  * `python3 -B`, so a JS string/line primitive leaking into a rule changes the verdict and fails
  * here.
  */

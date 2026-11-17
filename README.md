@@ -29,7 +29,10 @@ node dist/cli.js run <case.yml> \
 
 ## `response`
 
-Joins every `message` entry of the run's trace and asserts on that text. One check is one rule and
+The toolkit's built-in `trace` checker (`event: message`) already matches patterns against the
+agent's text. `response` is the example of what an extension adds on top: a fixed set of
+Markdown-and-math formatting rules too specific to build in. It joins every `message` entry of the
+run's trace and asserts on that text. One check is one rule and
 produces one result:
 
 ```yaml
@@ -62,10 +65,3 @@ node --test
 
 The tests drive the built CLI through each rule's passing and failing sample. They expect the
 toolkit as a sibling `../agent-evals`; set `AGENT_EVALS_CLI` to use another built `dist/cli.js`.
-
-## Limits
-
-- Nothing from `agent-evals` is importable at run time, so an extension carries its own code. This
-  one needs no dependencies — `params` only has to behave like a Zod schema.
-- Engine helpers are internal; an extension that reads the workspace does its own checks.
-- A `check()` may return its results directly or as a promise; either way it is one check's result.
