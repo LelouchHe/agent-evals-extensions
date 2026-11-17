@@ -158,8 +158,9 @@ test("no assistant text is an error, not a vacuous pass", async () => {
 /**
  * Python's text model is the authority: `str.splitlines()` ends a line at a bare CR, VT, FF,
  * `\u001c`-`\u001e`, NEL, LS and PS, while `str.strip()` keeps a byte-order mark and removes
- * NEL. Every expected verdict below was read from `checks.py` run under `python3 -B`, so a JS
- * string/line primitive leaking into a rule changes the verdict and fails here.
+ * NEL. Every expected verdict below was read from the package's former `checks.py` run under
+ * `python3 -B`, so a JS string/line primitive leaking into a rule changes the verdict and fails
+ * here.
  */
 test("line and whitespace semantics match the Python the rules were ported from", async () => {
   const cases = [

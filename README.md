@@ -50,8 +50,9 @@ checks:
 | `no-formatting-commentary` | Does not add commentary about LaTeX, SilverBullet, or formatting rules. |
 | `response-not-wholly-fenced` | Does not wrap the entire response in a code fence. |
 
-The rules are ports of `global/skills/markdown-writing/evals/checks.py`, so a package's recorded
-numbers stay comparable across the two instruments. That includes the text model, not just the
+The rules are ports of the `checks.py` that `markdown-writing` shipped while skill-evals measured
+it; that file has since been retired, and the tests still carry the verdicts read from it, so the
+port stays verifiable against the instrument it came from. That includes the text model, not just the
 patterns: lines end where Python's `str.splitlines()` ends them (a bare CR, VT, FF, `\u001c`-`\u001e`,
 NEL, LS, PS), and a line is trimmed with Python's `str.strip()` whitespace, which keeps a
 byte-order mark and removes NEL. `String.prototype.split(/\r?\n/)` and `trim()` would judge the same
