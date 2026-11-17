@@ -228,7 +228,7 @@ export const checker = {
   create(parsed) {
     const rule = RULES[parsed.check];
     return {
-      // The engine awaits this call and chains `.catch` on the result, so it must be async.
+      // Async for readability; the engine accepts a direct result too.
       async check(context) {
         if (context.trace === undefined) {
           return [{ checker: "response", subject: rule.subject, status: "error", reason: "this runner records no trace" }];

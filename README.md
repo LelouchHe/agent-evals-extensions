@@ -65,7 +65,7 @@ toolkit as a sibling `../agent-evals`; set `AGENT_EVALS_CLI` to use another buil
 
 ## Limits
 
-- `check()` must be async: the engine chains `.catch` on its result.
 - Nothing from `agent-evals` is importable at run time, so an extension carries its own code. This
   one needs no dependencies — `params` only has to behave like a Zod schema.
 - Engine helpers are internal; an extension that reads the workspace does its own checks.
+- A `check()` may return its results directly or as a promise; either way it is one check's result.
