@@ -1,8 +1,27 @@
 # Agent Evals Extensions
 
-Checkers and runners for [agent-evals](https://github.com/LelouchHe/agent-evals) that live outside the
-toolkit repository, so a skill's eval package can keep its cases next to the skill while the
-instrument that judges them stays shared.
+Checkers and runners for [**agent-evals**](https://github.com/LelouchHe/agent-evals), the toolkit
+this repository extends. agent-evals is the instrument: it owns the case format, the runners, the
+sandboxes, the built-in checkers and the run records. This repository holds what the instrument does
+not ship, because the instrument should not grow one checker per package:
+
+- a checker that a particular set of eval packages needs — here, deterministic assertions over the
+  text the agent produced;
+- a test-only runner that answers with a canned trace, so a checker can be verified without a model
+  call.
+
+The two meet only through `--extension-dir`. agent-evals discovers one implementation per
+subdirectory and drives it through the same contracts as a built-in, with no special case in the
+toolkit and no import in either direction. Keeping them apart is the point: a package's cases stay
+next to the skill that owns them, the judgement a package needs can change without touching the
+instrument, and the instrument stays generic enough to measure packages this repository knows
+nothing about.
+
+Compatibility: this repository targets agent-evals `0.1.0`, whose `--extension-dir` discovery, Zod
+`params` contract and exported type entry it uses. A change to those breaks extensions, so bump both
+together.
+
+## Getting started
 
 Clone both side by side — `agent-evals/` and `agent-evals-extensions/` — build the toolkit, then
 point `--extension-dir` at the root you need:
