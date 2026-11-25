@@ -1,22 +1,24 @@
 # Agent Evals Extensions
 
 Example checkers and runners for [agent-evals](https://github.com/LelouchHe/agent-evals), kept
-outside the toolkit to demonstrate the extension point. Written against agent-evals `0.1.0`.
+outside the toolkit to demonstrate the extension point. Written against `@lelouchhe/agent-evals`
+`0.1.1`.
 
 ## Usage
 
-Clone both repositories side by side, build the toolkit, then name the roots you need:
+Install dependencies (which brings in `@lelouchhe/agent-evals` for both the CLI and its public
+helper exports), then pass the extension roots you need:
 
 ```bash
-git clone https://github.com/LelouchHe/agent-evals
 git clone https://github.com/LelouchHe/agent-evals-extensions
-cd agent-evals && npm ci && npm run build
+cd agent-evals-extensions && npm install
 
-node dist/cli.js run <case.yml> \
-  --extension-dir ../agent-evals-extensions/checkers \
-  --extension-dir ../agent-evals-extensions/runners
+npx agent-evals run <case.yml> \
+  --extension-dir ./checkers \
+  --extension-dir ./runners
 ```
 
+Or run with a globally installed `agent-evals` CLI, or a local checkout (`node ../agent-evals/dist/cli.js run ...`).
 `--extension-dir` applies to `run` only — `view` does not load extensions — and an extension
 `$type` shares one flat namespace with the built-ins, so a duplicate is a configuration error.
 
@@ -60,8 +62,11 @@ whitespace semantics, not JavaScript's, and the tests pin that.
 ## Verify
 
 ```bash
-node --test
+npm test              # runs against the installed @lelouchhe/agent-evals package
+npm run test:local    # runs against a built sibling ../agent-evals (both CLI and exports)
 ```
 
-The tests drive the built CLI through each rule's passing and failing sample. They expect the
-toolkit as a sibling `../agent-evals`; set `AGENT_EVALS_CLI` to use another built `dist/cli.js`.
+The tests drive the CLI through each rule's passing and failing sample. `npm run test:local`
+redirects both the CLI (`AGENT_EVALS_CLI`) and runtime `@lelouchhe/agent-evals` imports to the
+sibling `../agent-evals/dist/`, without modifying `node_modules`. Set `AGENT_EVALS_CLI` to point at
+another built `dist/cli.js`.

@@ -1,3 +1,5 @@
+import { messageText } from "@lelouchhe/agent-evals";
+
 /**
  * The `response` checker: deterministic assertions over the text the agent produced.
  *
@@ -195,11 +197,6 @@ function fail(reason) {
   return { pass: false, reason };
 }
 
-/** Join every agent message the trace recorded, in run order. */
-function responseText(trace) {
-  return trace.map((entry) => (entry.type === "message" ? entry.text : "")).join("");
-}
-
 function invalid(message) {
   return { success: false, error: { issues: [{ path: [], message }] } };
 }
@@ -231,7 +228,7 @@ export const checker = {
         if (context.trace === undefined) {
           return [{ checker: "response", subject: rule.subject, status: "error", reason: "this runner records no trace" }];
         }
-        const text = responseText(context.trace);
+        const text = messageText(context.trace);
         if (strip(text) === "") {
           return [
             { checker: "response", subject: rule.subject, status: "error", reason: "the run produced no assistant text" },

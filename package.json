@@ -4,6 +4,13 @@
   "private": true,
   "type": "module",
   "description": "Checker and runner extensions for agent-evals, outside the toolkit repository.",
+  "scripts": {
+    "test": "node --test",
+    "test:local": "AGENT_EVALS_CLI=../agent-evals/dist/cli.js node --import ./scripts/local-loader.js --test"
+  },
+  "dependencies": {
+    "@lelouchhe/agent-evals": "^0.1.1"
+  },
   "license": "MIT",
   "author": "Lelouch He",
   "repository": {

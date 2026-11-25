@@ -9,7 +9,10 @@ import { promisify } from "node:util";
 import { checker } from "../checkers/response/index.js";
 
 const exec = promisify(execFile);
-const cli = process.env.AGENT_EVALS_CLI ?? fileURLToPath(new URL("../../agent-evals/dist/cli.js", import.meta.url));
+const cli = process.env.AGENT_EVALS_CLI ?? fileURLToPath(new URL("../node_modules/.bin/agent-evals", import.meta.url));
+const cliNodeArgs = process.env.AGENT_EVALS_CLI
+  ? ["--import", fileURLToPath(new URL("../scripts/local-loader.js", import.meta.url))]
+  : [];
 const extensionArgs = ["checkers", "runners"].flatMap((name) => [
   "--extension-dir",
   fileURLToPath(new URL(`../${name}`, import.meta.url)),
@@ -85,6 +88,7 @@ function document() {
 async function invoke(dir, name, args) {
   try {
     const { stdout, stderr } = await exec(process.execPath, [
+      ...cliNodeArgs,
       cli,
       "run",
       join(dir, "case.yml"),
